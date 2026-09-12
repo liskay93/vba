@@ -51,11 +51,11 @@ Private Const VALUE_AXIS_FORMAT As String = ""    ' 예: "#,##0". 빈 값이면 
 '------------------------------------------------------------------------------
 ' 색상 - VBA 는 &HBBGGRR& (RGB 역순). 주석의 #RRGGBB 가 원래 값입니다.
 '
-' 범주형 6색: 흰 배경에서 6색 전부 명암비 3:1 이상, 인접쌍 색약 구분 dEE 11.8,
-' 일반 시야 dEE 15.5 로 모든 기준 통과. 슬롯 순서가 안전장치이므로 순서를
+' 범주형 6색: 흰 배경에서 6색 전부 명암비 3:1 이상, 인접쌍 색약 구분 dE 11.8,
+' 일반 시야 dE 15.5 로 모든 기준 통과. 슬롯 순서가 안전장치이므로 순서를
 ' 바꾸려면 재검증이 필요합니다.
 '------------------------------------------------------------------------------
-Private Const C_CAT1 As Long = &HB63900&   ' #0039B6 브랜드 블루 (기존 색 유지)
+Private Const C_CAT1 As Long = &HC4450B&   ' #0B45C4 브랜드 블루 (원래 #0039B6 = &HB63900&)
 Private Const C_CAT2 As Long = &H0C73E8&   ' #E8730C 주황
 Private Const C_CAT3 As Long = &H7B8900&   ' #00897B 청록
 Private Const C_CAT4 As Long = &H006D8A&   ' #8A6D00 황토
@@ -64,7 +64,7 @@ Private Const C_CAT6 As Long = &H5B18C2&   ' #C2185B 적자
 
 ' 순차 4단 (진한 -> 연한). 연한 끝도 명암비 2.11:1 로 흰 배경에서 보입니다.
 Private Const C_SEQ1 As Long = &H6B2400&   ' #00246B
-Private Const C_SEQ2 As Long = &HB63900&   ' #0039B6
+Private Const C_SEQ2 As Long = &HC4450B&   ' #0B45C4
 Private Const C_SEQ3 As Long = &HD97F4A&   ' #4A7FD9
 Private Const C_SEQ4 As Long = &HEFB686&   ' #86B6EF
 
