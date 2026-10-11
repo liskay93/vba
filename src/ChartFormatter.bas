@@ -51,16 +51,19 @@ Private Const VALUE_AXIS_FORMAT As String = ""    ' 예: "#,##0". 빈 값이면 
 '------------------------------------------------------------------------------
 ' 색상 - VBA 는 &HBBGGRR& (RGB 역순). 주석의 #RRGGBB 가 원래 값입니다.
 '
-' 범주형 6색: 흰 배경에서 6색 전부 명암비 3:1 이상, 인접쌍 색약 구분 dE 11.8,
-' 일반 시야 dE 15.5 로 모든 기준 통과. 슬롯 순서가 안전장치이므로 순서를
-' 바꾸려면 재검증이 필요합니다.
+' 범주형: 파랑 계통 + 회색 계통. 색상(hue)이 아니라 밝기 차이로 구분하므로
+' 다색 팔레트보다 슬롯 수가 적습니다.
+'   1~4번 - 전체쌍 통과. 도넛을 포함한 모든 차트에서 안전.
+'           최저 정상 시야 dE 18.2, 색약 dE 17.6, 최저 명암비 3.25:1
+'   5번   - 인접쌍만 통과. 막대/꺾은선 전용이고 도넛에는 쓰지 않습니다.
+'           (5조각 도넛이면 #2E3338 과 #00246B 이 색약 시야에서 dE 10.9 로 붙음)
+' 슬롯 순서가 안전장치이므로 순서를 바꾸려면 재검증이 필요합니다.
 '------------------------------------------------------------------------------
-Private Const C_CAT1 As Long = &HC4450B&   ' #0B45C4 브랜드 블루 (원래 #0039B6 = &HB63900&)
-Private Const C_CAT2 As Long = &H0C73E8&   ' #E8730C 주황
-Private Const C_CAT3 As Long = &H7B8900&   ' #00897B 청록
-Private Const C_CAT4 As Long = &H006D8A&   ' #8A6D00 황토
-Private Const C_CAT5 As Long = &HA21F7B&   ' #7B1FA2 자주
-Private Const C_CAT6 As Long = &H5B18C2&   ' #C2185B 적자
+Private Const C_CAT1 As Long = &HC4450B&   ' #0B45C4 브랜드 블루  7.89:1
+Private Const C_CAT2 As Long = &HE08F5C&   ' #5C8FE0 연한 파랑    3.25:1
+Private Const C_CAT3 As Long = &H38332E&   ' #2E3338 짙은 회색   12.75:1
+Private Const C_CAT4 As Long = &H6F6862&   ' #62686F 중간 회색    5.63:1
+Private Const C_CAT5 As Long = &H6B2400&   ' #00246B 짙은 파랑   14.34:1 (도넛 제외)
 
 ' 순차 4단 (진한 -> 연한). 연한 끝도 명암비 2.11:1 로 흰 배경에서 보입니다.
 Private Const C_SEQ1 As Long = &H6B2400&   ' #00246B
@@ -68,9 +71,9 @@ Private Const C_SEQ2 As Long = &HC4450B&   ' #0B45C4
 Private Const C_SEQ3 As Long = &HD97F4A&   ' #4A7FD9
 Private Const C_SEQ4 As Long = &HEFB686&   ' #86B6EF
 
-' 역할색 - 계열 슬롯이 아니라 고정 역할. 순번으로 배정하지 않습니다.
-Private Const C_NEUTRAL As Long = &H7F7F7F&  ' #7F7F7F 기타/비교군 (4.00:1)
-Private Const C_ACCENT  As Long = &H0CA30C&  ' #0CA30C 강조 초록 (3.35:1)
+' 슬롯을 다 쓴 뒤의 넘침 표시. 제대로 구분되는 색이 아니라, 색이 모자란다는
+' 사실을 눈에 보이게 하려는 자리 표시입니다(2.26:1). 경고가 함께 뜹니다.
+Private Const C_OVERFLOW As Long = &HB3ADA8&  ' #A8ADB3
 
 ' 잉크 / 배경
 Private Const C_TEXT    As Long = &H000000&  ' #000000 모든 차트 텍스트
@@ -476,12 +479,45 @@ Private Sub StylePieSeries(srs As Series)
                 .NameFarEast = FONT_BODY
                 .Size = FONT_SIZE_BASE
                 .Bold = msoTrue
-                .Fill.Visible = msoTrue
-                .Fill.ForeColor.RGB = C_SURFACE   ' 조각 위에 흰 글씨
             End With
         End With
+
+        ' 글자색은 조각마다 다릅니다. 연한 조각 위의 흰 글씨는 읽히지 않습니다.
+        For p = 1 To srs.Points.Count
+            With srs.Points(p).DataLabel.Format.TextFrame2.TextRange.Font.Fill
+                .Visible = msoTrue
+                .ForeColor.RGB = LabelInk(PaletteColor(p))
+            End With
+        Next p
     End If
 End Sub
+
+
+' 배경색 위에서 더 잘 읽히는 글자색(흰색 또는 검정)을 고릅니다.
+Private Function LabelInk(clr As Long) As Long
+    Dim lum As Double
+
+    lum = 0.2126 * Linearize((clr Mod 256) / 255) _
+        + 0.7152 * Linearize(((clr \ 256) Mod 256) / 255) _
+        + 0.0722 * Linearize(((clr \ 65536) Mod 256) / 255)
+
+    ' 흰 글씨 대비 (1.05 / (lum+0.05)) 와 검정 글씨 대비 ((lum+0.05) / 0.05) 비교
+    If (1.05 / (lum + 0.05)) >= ((lum + 0.05) / 0.05) Then
+        LabelInk = C_SURFACE
+    Else
+        LabelInk = C_TEXT
+    End If
+End Function
+
+
+' sRGB 채널을 선형 광량으로 (WCAG 상대 휘도 계산용)
+Private Function Linearize(c As Double) As Double
+    If c <= 0.04045 Then
+        Linearize = c / 12.92
+    Else
+        Linearize = ((c + 0.055) / 1.055) ^ 2.4
+    End If
+End Function
 
 
 '--- 차트 그룹 (막대 굵기 / 묶기) --------------------------------------------
@@ -529,7 +565,7 @@ Private Function PaletteColor(idx As Long) As Long
             Case 2: PaletteColor = C_SEQ2
             Case 3: PaletteColor = C_SEQ3
             Case 4: PaletteColor = C_SEQ4
-            Case Else: PaletteColor = C_NEUTRAL
+            Case Else: PaletteColor = C_OVERFLOW
         End Select
     Else
         Select Case idx
@@ -538,8 +574,7 @@ Private Function PaletteColor(idx As Long) As Long
             Case 3: PaletteColor = C_CAT3
             Case 4: PaletteColor = C_CAT4
             Case 5: PaletteColor = C_CAT5
-            Case 6: PaletteColor = C_CAT6
-            Case Else: PaletteColor = C_NEUTRAL
+            Case Else: PaletteColor = C_OVERFLOW
         End Select
     End If
 End Function
@@ -549,7 +584,7 @@ Private Function PaletteSlots() As Long
     If PALETTE_MODE = "SEQUENTIAL" Then
         PaletteSlots = 4
     Else
-        PaletteSlots = 6
+        PaletteSlots = 5
     End If
 End Function
 
@@ -634,9 +669,10 @@ Private Sub NoteChartWarnings(ch As Chart)
 
     n = ch.SeriesCollection.Count
     If n > PaletteSlots() Then
-        AddWarning "계열이 " & n & "개입니다. 팔레트 슬롯은 " & PaletteSlots() & _
-                   "개이고, 색을 돌려쓰면 서로 다른 계열이 같은 색이 되므로 " & _
-                   (PaletteSlots() + 1) & "번째부터는 회색으로 칠합니다. " & _
+        AddWarning "계열이 " & n & "개입니다. 파랑/회색 팔레트는 밝기 차이로 " & _
+                   "구분하기 때문에 슬롯이 " & PaletteSlots() & "개뿐이고, 색을 " & _
+                   "돌려쓰면 서로 다른 계열이 같은 색이 됩니다. " & (PaletteSlots() + 1) & _
+                   "번째부터는 연한 회색 한 가지로 칠하므로 서로 구분되지 않습니다. " & _
                    "나머지를 '기타'로 묶거나 차트를 나누세요."
     End If
 

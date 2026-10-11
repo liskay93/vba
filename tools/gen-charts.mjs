@@ -8,11 +8,24 @@ const LW = 1.5, MK = 5, FILLGAP = 1.5;     // LINE_WEIGHT / MARKER_SIZE / FILL_G
 const INK = "#000000", SURF = "#FFFFFF";   // C_TEXT / C_SURFACE
 const FONT = "font-family=\"'Malgun Gothic','맑은 고딕','Noto Sans KR',sans-serif\"";
 
-const CAT = ["#0B45C4","#E8730C","#00897B","#8A6D00","#7B1FA2","#C2185B"];
+// 범주형: 1~4번 전 차트 안전, 5번은 막대/꺾은선 전용
+const CAT = ["#0B45C4","#5C8FE0","#2E3338","#62686F","#00246B"];
 const SEQ = ["#00246B","#0B45C4","#4A7FD9","#86B6EF"];
 const OLD = ["#0039B6","#BDD2FF","#DDE9F7","#7F7F7F","#D8D8D8","#00C800"];
-const CATp= ["#005AC8","#958300","#82807A","#7B6C00","#004AA5","#4B505C"]; // protan 시뮬
-const OLDp= ["#004FBA","#C4D5FF","#E4E9F8","#7F7F7F","#D8D8D8","#CDB400"];
+// 색약 시야 색과 레이블 글자색은 손으로 옮기지 않고 여기서 계산합니다.
+// (Machado 2009, severity 1.0 - cvd-simulate.mjs 및 검증기와 동일)
+const _M={protan:[[0.152286,1.052583,-0.204868],[0.114503,0.786281,0.099216],[-0.003882,-0.048116,1.051998]]};
+const _lin=h=>h.replace(/^#/,"").match(/../g).map(x=>parseInt(x,16)/255)
+  .map(c=>c<=0.04045?c/12.92:((c+0.055)/1.055)**2.4);
+const _s=c=>{c=Math.max(0,Math.min(1,c));return c<=0.0031308?12.92*c:1.055*c**(1/2.4)-0.055};
+const simulate=(h,k)=>{const[r,g,b]=_lin(h),M=_M[k],q=x=>Math.max(0,Math.min(1,x));
+ return "#"+[q(M[0][0]*r+M[0][1]*g+M[0][2]*b),q(M[1][0]*r+M[1][1]*g+M[1][2]*b),q(M[2][0]*r+M[2][1]*g+M[2][2]*b)]
+   .map(c=>Math.round(_s(c)*255).toString(16).padStart(2,"0")).join("").toUpperCase()};
+// ChartFormatter.bas 의 LabelInk 와 같은 규칙: 조각 밝기에 따라 흰/검정
+const labelInk=h=>{const[r,g,b]=_lin(h);const lum=0.2126*r+0.7152*g+0.0722*b;
+  return (1.05/(lum+0.05)) >= ((lum+0.05)/0.05) ? SURF : INK};
+const CATp = CAT.map(h=>simulate(h,"protan"));
+const OLDp = OLD.map(h=>simulate(h,"protan"));
 
 // 그림 영역
 const P = {l:26, r:306, t:26, b:184};
@@ -130,8 +143,9 @@ function donut(slices, colors, opt={}){
          + `fill="${colors[i]}" stroke="${SURF}" stroke-width="${FILLGAP}"/>`;
     if(opt.labels){
       const am = (a0+a1)/2, rm = (R+r)/2;
-      lbl.push(`<text x="${f(cx+rm*Math.cos(am))}" y="${f(cy+rm*Math.sin(am)-1)}" ${FONT} font-size="${F.base}" font-weight="bold" fill="${SURF}" text-anchor="middle">${esc(s.name)}</text>`
-             + `<text x="${f(cx+rm*Math.cos(am))}" y="${f(cy+rm*Math.sin(am)+8)}" ${FONT} font-size="${F.base}" font-weight="bold" fill="${SURF}" text-anchor="middle">${Math.round(s.v/tot*100)}%</text>`);
+      const ink = labelInk(colors[i]);   // 연한 조각 위의 흰 글씨는 읽히지 않음
+      lbl.push(`<text x="${f(cx+rm*Math.cos(am))}" y="${f(cy+rm*Math.sin(am)-1)}" ${FONT} font-size="${F.base}" font-weight="bold" fill="${ink}" text-anchor="middle">${esc(s.name)}</text>`
+             + `<text x="${f(cx+rm*Math.cos(am))}" y="${f(cy+rm*Math.sin(am)+8)}" ${FONT} font-size="${F.base}" font-weight="bold" fill="${ink}" text-anchor="middle">${Math.round(s.v/tot*100)}%</text>`);
     }
     a0 = a1;
   });

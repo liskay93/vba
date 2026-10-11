@@ -121,8 +121,8 @@ KoPubWorld돋움체 Medium 은 대체 글꼴로 보입니다. 엑셀의 자동 �
 
 <section>
 <h2>팔레트를 바꾼 이유</h2>
-<p class="sub">같은 데이터, 같은 서식, 색만 다릅니다. 기존 팔레트의 2·3번은 파랑 한 색의
-진하기 단계여서, 서로 다른 대상을 구분하는 용도로 쓰면 흰 바탕에서 사라집니다.</p>
+<p class="sub">색 계통은 파랑과 회색 그대로입니다. 기존 안이 깨진 건 계통 때문이 아니라
+단계가 너무 연하고 서로 붙어 있었기 때문입니다. 간격만 벌렸습니다.</p>
 <div class="duo">
   <div class="proof">
     <div class="proof-hd"><span class="t">기존</span><span class="d bad">6색 중 4색이 3:1 미만</span></div>
@@ -134,12 +134,13 @@ KoPubWorld돋움체 Medium 은 대체 글꼴로 보입니다. 엑셀의 자동 �
     </ul></div>
   </div>
   <div class="proof">
-    <div class="proof-hd"><span class="t">권장</span><span class="d">6색 전부 3:1 이상</span></div>
+    <div class="proof-hd"><span class="t">권장</span><span class="d">전부 3:1 이상</span></div>
     <div class="sheet">${C.bar}</div>
     <div class="cap"><ul class="sw">
       <li><i style="background:#0B45C4"></i>#0B45C4 7.89</li>
-      <li><i style="background:#E8730C"></i>#E8730C 3.05</li>
-      <li><i style="background:#00897B"></i>#00897B 4.32</li>
+      <li><i style="background:#5C8FE0"></i>#5C8FE0 3.25</li>
+      <li><i style="background:#2E3338"></i>#2E3338 12.75</li>
+      <li><i style="background:#62686F"></i>#62686F 5.63</li>
     </ul></div>
   </div>
 </div>
@@ -158,13 +159,14 @@ KoPubWorld돋움체 Medium 은 대체 글꼴로 보입니다. 엑셀의 자동 �
   <div class="proof"><div class="proof-hd"><span class="t">권장 · 정상</span></div>
     <div class="sheet">${C.dNewN}</div></div>
   <div class="proof"><div class="proof-hd"><span class="t">권장 · 적색맹</span>
-    <span class="d">최저 ΔE 8.1</span></div>
+    <span class="d">최저 ΔE 17.6</span></div>
     <div class="sheet">${C.dNewP}</div></div>
 </div>
-<div class="note"><span>※</span><span>권장 팔레트도 여유가 크지는 않습니다. 적색맹 시야에서
-주황과 황토가 ΔE 8.1 로 기준선(8.0)을 겨우 넘습니다. <b>그래서 도넛은 4조각까지입니다</b> —
-5조각이 되면 자주(<code>#7B1FA2</code>)가 브랜드 블루 쪽으로 수렴합니다. 조각이 5개를 넘으면
-매크로가 경고를 띄웁니다.</span></div>
+<div class="note"><span>※</span><span>색상이 아니라 <b>밝기 차이로 구분</b>하는 팔레트라
+색약 시야에서도 간격이 잘 유지됩니다(ΔE 17.6, 기준 8.0). 대신 쓸 수 있는 밝기 단계가
+한정되어 <b>도넛은 4조각까지입니다</b> — 5조각이 되면 짙은 회색(<code>#2E3338</code>)과
+짙은 파랑(<code>#00246B</code>)이 ΔE 10.9 로 붙습니다. 조각이 4개를 넘으면 매크로가
+경고를 띄웁니다.</span></div>
 </section>
 
 <section>

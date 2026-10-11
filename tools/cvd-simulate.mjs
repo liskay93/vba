@@ -19,7 +19,7 @@ function dE(a,b,k){const x=oklabFromLin(k?simulate(a,k):lin(a)),y=oklabFromLin(k
  return 100*Math.hypot(x[0]-y[0],x[1]-y[1],x[2]-y[2])}
 
 const OLD=["#0039B6","#BDD2FF","#DDE9F7","#7F7F7F","#D8D8D8","#00C800"];
-const NEW=["#0B45C4","#E8730C","#00897B","#8A6D00","#7B1FA2","#C2185B"];
+const NEW=["#0B45C4","#5C8FE0","#2E3338","#62686F","#00246B"];
 const out={};
 for(const[name,P]of[["old",OLD],["new",NEW]]){
   out[name]={normal:P,protan:P.map(h=>toHex(simulate(h,"protan"))),deutan:P.map(h=>toHex(simulate(h,"deutan")))};
