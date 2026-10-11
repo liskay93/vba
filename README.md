@@ -188,8 +188,26 @@ ser.Format.Fill.ForeColor.RGB = colorRGB(colorIndex - 1)
 - 3차원 차트, 보조 축이 있으면 경고를 띄웁니다.
 - `KoPubWorld돋움체 Medium` 이 설치되지 않은 PC 에서는 범례가 대체 폰트로 표시됩니다.
 
+## 미리보기
+
+`preview.html` 은 이 서식을 적용했을 때 나오는 차트 모양을 SVG 로 재현한 교정쇄입니다.
+막대·꺾은선·도넛 세 종류, 팔레트 교체 전후 비교, 색약 시야 비교, 순차 모드를 담았습니다.
+브라우저로 바로 열면 됩니다. 설정값을 바꾼 뒤 다시 만들려면:
+
+```sh
+node tools/gen-charts.mjs && node tools/build-preview.mjs
+```
+
+엑셀 스크린샷이 아니라 재현이라는 점에 유의하세요. 글꼴은 보는 PC 에 맑은 고딕과
+KoPubWorld돋움체가 없으면 대체 글꼴로 보이고, 엑셀의 자동 축 눈금 선택과 레이블 충돌
+회피는 재현하지 않았습니다.
+
 ## 파일
 
 ```
-src/ChartFormatter.bas    가져와서 쓰는 VBA 모듈 (단일 파일, UTF-8)
+src/ChartFormatter.bas      가져와서 쓰는 VBA 모듈 (단일 파일, UTF-8)
+preview.html                서식 적용 결과 교정쇄 (생성물)
+tools/gen-charts.mjs        모듈 설정값으로 차트 SVG 생성
+tools/build-preview.mjs     preview.html 조립
+tools/cvd-simulate.mjs      색약 시야 색상 계산 (Machado 2009)
 ```
